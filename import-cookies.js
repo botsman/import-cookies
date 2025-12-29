@@ -46,6 +46,7 @@ import { PermissionHandler } from './interface/lib/permissionHandler.js';
   browserDetector.getApi().runtime.onConnect.addListener(onConnect);
   browserDetector.getApi().runtime.onMessage.addListener(handleMessage);
   browserDetector.getApi().tabs.onUpdated.addListener(onTabsChanged);
+  browserDetector.getApi().runtime.onInstalled.addListener(onInstalled);
 
   if (!browserDetector.isSafari()) {
     browserDetector.getApi().cookies.onChanged.addListener(onCookiesChanged);
@@ -244,6 +245,30 @@ import { PermissionHandler } from './interface/lib/permissionHandler.js';
   function onTabsChanged(tabId, changeInfo, _tab) {
     console.log('tabs changed', tabId, changeInfo, _tab);
     sendMessageToTab(tabId, 'tabsChanged', changeInfo);
+  }
+
+  /**
+   * Handles the event that is fired when the extension is installed.
+   * @param {object} details Details about the installation event.
+   */
+  function onInstalled(details) {
+    if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+      // Code to be executed on first install
+      // eg. open a tab with a url
+      chrome.tabs.create({
+        url: 'https://devtulz.com/import-cookies/welcome/',
+      });
+    } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
+      // When extension is updated
+    } else if (
+      details.reason === chrome.runtime.OnInstalledReason.CHROME_UPDATE
+    ) {
+      // When browser is updated
+    } else if (
+      details.reason === chrome.runtime.OnInstalledReason.SHARED_MODULE_UPDATE
+    ) {
+      // When a shared module is updated
+    }
   }
 
   /**
