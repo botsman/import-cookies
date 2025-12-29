@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "导入 Cookies"
+  },
+  "shortDesc": {
+    "message": "在当前的 Google Chrome 浏览器标签页上导出和导入 Cookies，以共享和转移活动会话。"
+  },
+  "storeDesc": {
+    "message": "导入 Cookies 是一个简单而强大的 Chrome 扩展，旨在直接从您当前的浏览器标签快速导入和导出 Cookies。无论您是开发者、测试人员还是高级用户，这个 Cookies 导入和导出工具都提供了一种快速且轻量的解决方案，没有多余的功能。🚀\n\n使用导入 Cookies，您可以轻松地将 Chrome Cookies 导入以恢复会话、迁移认证浏览环境，或在另一台设备上继续您的测试工作流程。您还可以以标准格式导出 Cookies，例如 Chrome 导出 Cookies txt，使会话管理变得轻而易举。\n\n这个 Cookies 编辑器扩展在处理登录状态、安全令牌和跨环境测试时非常有用。获取令牌 Cookie 或获取 cookies.txt 的能力允许灵活的自动化和无缝的浏览器会话处理。\n\n使用导入 Cookies 可以：\n1️⃣ 从文本文件导入 Cookies\n2️⃣ 从活动标签导出 Cookies\n3️⃣ 在系统之间保持您的认证会话同步\n\n没有复杂的配置，没有令人困惑的用户界面。只需两个按钮的 Cookies 导入和导出工作流程。💡\n\n为什么选择导入 Cookies？\n\n超简单的界面\n\n一键 Chrome 导入 Cookies\n\n一键 Chrome 导出 Cookies\n\n在活动浏览器标签上即时操作\n\n与开发者工具和自动化脚本完美兼容\n\n常见用例包括：\n\nQA 工程师恢复测试会话\n\n开发者在不同环境之间处理登录 Cookies\n\n用户在不同浏览器或操作系统之间切换会话\n\n需要获取 cookies.txt 格式的自动化工具\n\n通过 Cookies 导出器快速备份，而无需导出完整的个人资料\n\n有时您需要更多控制。导入 Cookies 可以帮助您：\n➤ 编辑浏览器 Cookies\n➤ 调整令牌值与 Cookies 编辑\n➤ 在导入前修改 Cookie 条目\n➤ 一起使用 Cookie 编辑器或 Cookies 编辑工具\n➤ 手动编辑 Chrome Cookies 或使用编辑 Cookie 工作流程\n\n尽管我们的主要功能严格是导出 Cookies 和导入 Cookies，但如果需要，您可以将此扩展与任何导入 Cookies 工具结合使用。\n\n非常适合依赖于：\n• Chrome 导出 Cookies txt 进行自动化的专业人士\n• 安全环境传输\n• 基于 Cookie 的认证共享\n• 处理需要会话 Cookies 的 REST 客户端\n• 在浏览器清理之前保存会话数据\n\n导入 Cookies 支持：\n\nCookie 导入\n\nCookie 导出器\n\nCookie 导入器工作流程\n\n将 Cookies 导出为可读格式\n\n为脚本检索获取 cookies.txt 数据\n\n没有更多，也没有更少。🔧\n\n主要优点：\n1️⃣ 不需要账户\n2️⃣ 完全离线工作\n3️⃣ 超快速的 Chrome 导出 Cookies\n4️⃣ 轻量级占用\n5️⃣ 在浏览器内部完全透明的操作\n\n它如何帮助开发者：\n▸ 在暂存、预生产和生产环境之间移动\n▸ 转移已登录会话以进行调试\n▸ 重用认证 Cookies 进行快速 API 令牌测试\n▸ 与其他 Cookies 编辑器扩展工具一起管理 Cookies\n▸ 快速导入 Cookies，无需花时间手动登录\n\n它如何帮助测试人员：\n\n跳过重复的登录步骤\n\n恢复过期的会话\n\n使用获取令牌 Cookie 继续测试\n\n在团队成员之间共享会话设置\n\n在回归测试期间备份 Cookies ⚙️\n\n✨ 安全与隐私\n\n我们尊重您的隐私。您的 Cookies 永远不会离开您的设备。\n\n导入 Cookies：\n➤ 不会在外部服务器上上传、存储或处理 Cookies\n➤ 所有操作都在您自己的浏览器内部本地处理\n➤ 仅请求功能所需的最低权限\n\n您的数据始终在您的完全控制之下。🔒\n\n设计对象：\n• QA 工程师\n• Web 开发者\n• 自动化专家\n• 处理基于 Cookie 的认证的增长团队\n• 需要快速 Chrome 导入 Cookies 的技术用户\n\n如果您厌倦了复杂的工具，导入 Cookies 正好满足您的需求：快速从活动标签导入 Cookies 和 Chrome 导出 Cookies，而不会有任何干扰。\n\n简化您的工作流程：\n1️⃣ 打开标签\n2️⃣ 点击导入或导出\n3️⃣ 完成 ✨\n\n通过一个简约的 Cookies 导入器、可靠的 Cookies 导出器和流畅的 Chrome 导出 Cookies txt 支持来提升您的生产力。导入 Cookies 是处理快速 Cookies 的最实用工具。\n\n今天就使用导入 Cookies 控制您的会话，享受轻松的 Cookies 导入、导出 Cookies、编辑浏览器 Cookies 和基于令牌的测试支持，无论何时您需要。🎯"
+  }
+}

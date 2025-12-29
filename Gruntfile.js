@@ -46,6 +46,11 @@ module.exports = function (grunt) {
           },
           {
             expand: true,
+            src: ['_locales/**'],
+            dest: 'build/<%= grunt.task.current.target %>/',
+          },
+          {
+            expand: true,
             src: 'manifest.<%= grunt.task.current.target %>.json',
             dest: 'build/<%= grunt.task.current.target %>/',
             filter: 'isFile',

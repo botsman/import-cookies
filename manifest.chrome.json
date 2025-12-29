@@ -1,8 +1,9 @@
 {
 	"manifest_version": 3,
-	"name": "Import Cookies",
+	"name": "__MSG_appName__",
 	"version": "1.0.0",
-	"description": "Export and import cookies on the active Google Chrome browser tab to share and transfer active sessions.",
+	"description": "__MSG_shortDesc__",
+	"default_locale": "en",
 	"offline_enabled": true,
 	"minimum_chrome_version": "102",
 	"background": {
