@@ -871,3 +871,49 @@ body,
   background-color: rgba(0, 0, 0, 0.03);
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1);
 }
+
+
+.rating-container{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#button-bar-default:not(.active) ~ .rating-container {
+  display: none;
+}
+
+.rating-container p {
+  margin: 0;
+  padding: 0;
+}
+
+.full-stars {
+  text-align: center;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.full-stars .star-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.full-stars .star-link svg {
+  margin: 2px;
+  height: 20px;
+  width: 20px;
+  fill: #ff8400;
+  transition: fill 0.3s;
+}
+
+/* Light up the hovered star and all previous stars */
+.full-stars .star-link:hover svg,
+.full-stars .star-link:has(~ .star-link:hover) svg {
+  fill: #ffc711;
+}
