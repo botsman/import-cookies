@@ -47,6 +47,8 @@ import { PermissionHandler } from './interface/lib/permissionHandler.js';
   browserDetector.getApi().runtime.onMessage.addListener(handleMessage);
   browserDetector.getApi().tabs.onUpdated.addListener(onTabsChanged);
   browserDetector.getApi().runtime.onInstalled.addListener(onInstalled);
+  const uninstallUrl = 'https://devtulz.com/import-cookies/uninstall/';
+  browserDetector.getApi().runtime.setUninstallURL(uninstallUrl);
 
   if (!browserDetector.isSafari()) {
     browserDetector.getApi().cookies.onChanged.addListener(onCookiesChanged);
