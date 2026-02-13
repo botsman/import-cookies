@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "__MSG_appName__",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "__MSG_shortDesc__",
 	"default_locale": "en",
 	"offline_enabled": true,
@@ -32,7 +32,7 @@
 		"storage",
 		"sidePanel"
 	],
-	"optional_host_permissions": [
+	"host_permissions": [
 		"<all_urls>"
 	],
 	"icons": {
