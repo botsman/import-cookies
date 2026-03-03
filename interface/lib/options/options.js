@@ -13,6 +13,7 @@ export class Options {
     this.advancedCookies = false;
     this.devtoolsEnabled = true;
     this.animationsEnabled = true;
+    this.deleteAllConfirm = true;
     this.exportFormat = ExportFormats.Ask;
     this.extraInfo = ExtraInfos.Nothing;
     this.theme = Themes.Auto;

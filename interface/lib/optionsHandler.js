@@ -222,6 +222,26 @@ export class OptionsHandler extends EventEmitter {
   }
 
   /**
+   * Gets whether a confirmation dialog should be shown before deleting all
+   * cookies.
+   * @return {boolean} True if the dialog should be shown, otherwise false.
+   */
+  getDeleteAllConfirm() {
+    // Uses `!== false` in order to be opt-in by default.
+    return this.options.deleteAllConfirm !== false;
+  }
+  /**
+   * Sets whether a confirmation dialog should be shown before deleting all
+   * cookies.
+   * @param {boolean} deleteAllConfirm True if the dialog should be shown,
+   *     otherwise false.
+   */
+  setDeleteAllConfirm(deleteAllConfirm) {
+    this.options.deleteAllConfirm = deleteAllConfirm;
+    this.saveOptions();
+  }
+
+  /**
    * Gets whether the button bar is displayed at the top of the page or not.
    * @return {boolean} True if the button bar is on the top, otherwise false.
    */

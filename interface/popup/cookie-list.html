@@ -39,95 +39,214 @@
     </div>
   </div>
 
-  <div id="cookie-container"></div>
+  <div id="main-layout">
+    <div id="main-area">
+      <div id="cookie-container"></div>
 
-  <div class="panel button-bar active" id="button-bar-default">
-    <div class="panel-section panel-section-footer">
-      <button class="panel-section-footer-button" id="create-cookie" type="button">
-        <div>
-          <svg class="icon">
-            <use href="../sprites/solid.svg#plus"></use>
-          </svg>
-          <div class="tooltip" role="tooltip">Add</div>
-        </div>
-      </button>
-      <div class="panel-section-footer-separator"></div>
+      <div id="settings-panel">
+        <fieldset>
+          <legend>Options</legend>
+          <div class="input-container">
+            <label for="sp-advanced-cookie">Show Advanced Cookie Options</label>
+            <label class="switch">
+              <input type="checkbox" id="sp-advanced-cookie" />
+              <span class="slider"></span>
+            </label>
+            <div class="hint">When enabled, all cookie fields are shown in the interface.</div>
+          </div>
+          <div class="input-container">
+            <label for="sp-devtool-show">Enable Devtool Panel</label>
+            <label class="switch">
+              <input type="checkbox" id="sp-devtool-show" />
+              <span class="slider"></span>
+            </label>
+            <div class="hint">When enabled, Import Cookies is added to the DevTools tabs.</div>
+          </div>
+          <div class="input-container">
+            <label for="sp-animations-enabled">Enable Animations</label>
+            <label class="switch">
+              <input type="checkbox" id="sp-animations-enabled" />
+              <span class="slider"></span>
+            </label>
+            <div class="hint">Show transitions and animations in the interface.</div>
+          </div>
+          <div class="input-container">
+            <label for="sp-export-format">Export Format</label>
+            <select id="sp-export-format">
+              <option value="json">JSON</option>
+              <option value="headerstring">Header String</option>
+              <option value="netscape">Netscape</option>
+              <option value="ask">Ask every time</option>
+            </select>
+            <div class="hint">Behavior of the export button.</div>
+          </div>
+          <div class="input-container">
+            <label for="sp-extra-info">Show Extra Information</label>
+            <select id="sp-extra-info">
+              <option value="nothing">Nothing</option>
+              <option value="value">Value</option>
+              <option value="domain">Domain</option>
+              <option value="path">Path</option>
+              <option value="expiration">Expiration</option>
+              <option value="samesite">Same Site</option>
+              <option value="hostonly">Host Only</option>
+              <option value="session">Session</option>
+              <option value="secure">Secure</option>
+              <option value="httponly">Http Only</option>
+            </select>
+            <div class="hint">Extra info shown next to the cookie name.</div>
+          </div>
+          <div class="input-container">
+            <label for="sp-theme">Theme</label>
+            <select id="sp-theme">
+              <option value="auto">Auto</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+            <div class="hint">Interface color theme.</div>
+          </div>
+          <div class="input-container">
+            <label for="sp-delete-all-confirm">Confirm Delete All</label>
+            <label class="switch">
+              <input type="checkbox" id="sp-delete-all-confirm" />
+              <span class="slider"></span>
+            </label>
+            <div class="hint">Show a confirmation dialog before deleting all cookies.</div>
+          </div>
+          <div class="input-container">
+            <label for="sp-button-bar-top">Place Button Bar on Top</label>
+            <label class="switch">
+              <input type="checkbox" id="sp-button-bar-top" />
+              <span class="slider"></span>
+            </label>
+            <div class="hint">Move the action buttons to the top of the interface.</div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>All Cookies</legend>
+          <div class="notice danger">
+            <svg class="icon">
+              <use href="../sprites/solid.svg#exclamation-triangle"></use>
+            </svg>
+            <strong>Be careful!</strong> Operations here apply to ALL sites.
+          </div>
+          <div class="input-container">
+            Export All Cookies
+            <div class="button-group">
+              <button id="sp-export-all-json" type="button">As JSON</button>
+              <button id="sp-export-all-netscape" type="button">As Netscape</button>
+            </div>
+          </div>
+          <div class="input-container">
+            Delete All Cookies
+            <button class="danger" id="sp-delete-all" type="button">Delete All</button>
+            <div class="hint danger">Deletes all cookies on all sites. Irreversible.</div>
+          </div>
+        </fieldset>
+      </div>
 
-      <button class="panel-section-footer-button danger" id="delete-all-cookies" type="button">
-        <div>
-          <svg class="icon">
-            <use href="../sprites/solid.svg#trash"></use>
-          </svg>
-          <div class="tooltip" role="tooltip">Delete All</div>
-        </div>
-      </button>
-      <div class="panel-section-footer-separator"></div>
+      <div class="panel button-bar active" id="button-bar-default">
+        <div class="panel-section panel-section-footer">
+          <button class="panel-section-footer-button" id="create-cookie" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#plus"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Add</div>
+            </div>
+          </button>
+          <div class="panel-section-footer-separator"></div>
 
-      <button class="panel-section-footer-button" id="import-cookies" type="button">
-        <div>
-          <svg class="icon">
-            <use href="../sprites/solid.svg#file-import"></use>
-          </svg>
-          <div class="tooltip" role="tooltip">Import</div>
-        </div>
-      </button>
-      <div class="panel-section-footer-separator"></div>
+          <button class="panel-section-footer-button danger" id="delete-all-cookies" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#trash"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Delete All</div>
+            </div>
+          </button>
+          <div class="panel-section-footer-separator"></div>
 
-      <button class="panel-section-footer-button" id="export-cookies" type="button">
-        <div>
-          <svg class="icon">
-            <use href="../sprites/solid.svg#file-export"></use>
-          </svg>
-          <div class="tooltip" role="tooltip">Export</div>
+          <button class="panel-section-footer-button" id="import-cookies" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#file-import"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Import</div>
+            </div>
+          </button>
+          <div class="panel-section-footer-separator"></div>
+
+          <button class="panel-section-footer-button" id="export-cookies" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#file-export"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Export</div>
+            </div>
+          </button>
         </div>
-      </button>
+      </div>
+
+      <div class="panel button-bar" id="button-bar-add">
+        <div class="panel-section panel-section-footer">
+          <button class="panel-section-footer-button" id="return-list-add" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#arrow-left"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Cancel</div>
+            </div>
+          </button>
+          <div class="panel-section-footer-separator"></div>
+
+          <button class="panel-section-footer-button primary" id="save-create-cookie" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#save"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Add</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel button-bar" id="button-bar-import">
+        <div class="panel-section panel-section-footer">
+          <button class="panel-section-footer-button" id="return-list-import" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#arrow-left"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Cancel</div>
+            </div>
+          </button>
+          <div class="panel-section-footer-separator"></div>
+
+          <button class="panel-section-footer-button primary" id="save-import-cookie" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#file-import"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Import</div>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="panel button-bar" id="button-bar-add">
-    <div class="panel-section panel-section-footer">
-      <button class="panel-section-footer-button" id="return-list-add" type="button">
-        <div>
-          <svg class="icon">
-            <use href="../sprites/solid.svg#arrow-left"></use>
-          </svg>
-          <div class="tooltip" role="tooltip">Cancel</div>
-        </div>
+    <nav id="sidebar">
+      <button class="sidebar-btn active" id="sidebar-cookies" aria-label="Cookies" title="Cookies">
+        <svg class="icon">
+          <use href="../sprites/solid.svg#cookie"></use>
+        </svg>
       </button>
-      <div class="panel-section-footer-separator"></div>
-
-      <button class="panel-section-footer-button primary" id="save-create-cookie" type="button">
-        <div>
-          <svg class="icon">
-            <use href="../sprites/solid.svg#save"></use>
-          </svg>
-          <div class="tooltip" role="tooltip">Add</div>
-        </div>
+      <button class="sidebar-btn" id="sidebar-settings" aria-label="Settings" title="Settings">
+        <svg class="icon">
+          <use href="../sprites/solid.svg#cog"></use>
+        </svg>
       </button>
-    </div>
-  </div>
-
-  <div class="panel button-bar" id="button-bar-import">
-    <div class="panel-section panel-section-footer">
-      <button class="panel-section-footer-button" id="return-list-import" type="button">
-        <div>
-          <svg class="icon">
-            <use href="../sprites/solid.svg#arrow-left"></use>
-          </svg>
-          <div class="tooltip" role="tooltip">Cancel</div>
-        </div>
-      </button>
-      <div class="panel-section-footer-separator"></div>
-
-      <button class="panel-section-footer-button primary" id="save-import-cookie" type="button">
-        <div>
-          <svg class="icon">
-            <use href="../sprites/solid.svg#file-import"></use>
-          </svg>
-          <div class="tooltip" role="tooltip">Import</div>
-        </div>
-      </button>
-    </div>
+    </nav>
   </div>
 
   <div id="notification-container">
@@ -362,6 +481,22 @@
       <button id="export-json" type="button">JSON</button>
       <button id="export-headerstring" type="button">Header String</button>
       <button id="export-netscape" type="button">Netscape</button>
+    </div>
+  </template>
+
+  <template id="tmp-confirm-delete-all">
+    <div id="confirm-delete-all-overlay">
+      <div id="confirm-delete-all-dialog">
+        <p>Are you sure you want to delete all cookies for this page?</p>
+        <label for="confirm-delete-all-dont-ask">
+          <input type="checkbox" id="confirm-delete-all-dont-ask" />
+          Don't ask again
+        </label>
+        <div class="confirm-delete-all-buttons">
+          <button id="confirm-delete-all-cancel" type="button">Cancel</button>
+          <button id="confirm-delete-all-confirm" type="button">Delete All</button>
+        </div>
+      </div>
     </div>
   </template>
 

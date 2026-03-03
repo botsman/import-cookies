@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', async event => {
   const advancedCookieInput = document.getElementById('advanced-cookie');
   const showDevtoolsInput = document.getElementById('devtool-show');
   const animationsEnabledInput = document.getElementById('animations-enabled');
+  const deleteAllConfirmInput = document.getElementById('delete-all-confirm');
   const exportFormatInput = document.getElementById('export-format');
   const extraInfoInput = document.getElementById('extra-info');
   const themeInput = document.getElementById('theme');
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async event => {
     advancedCookieInput.checked = optionHandler.getCookieAdvanced();
     showDevtoolsInput.checked = optionHandler.getDevtoolsEnabled();
     animationsEnabledInput.checked = optionHandler.getAnimationsEnabled();
+    deleteAllConfirmInput.checked = optionHandler.getDeleteAllConfirm();
     exportFormatInput.value = optionHandler.getExportFormat();
     extraInfoInput.value = optionHandler.getExtraInfo();
     themeInput.value = optionHandler.getTheme();
@@ -72,6 +74,12 @@ document.addEventListener('DOMContentLoaded', async event => {
       }
       optionHandler.setAnimationsEnabled(animationsEnabledInput.checked);
       handleAnimationsEnabled();
+    });
+    deleteAllConfirmInput.addEventListener('change', event => {
+      if (!event.isTrusted) {
+        return;
+      }
+      optionHandler.setDeleteAllConfirm(deleteAllConfirmInput.checked);
     });
     exportFormatInput.addEventListener('change', event => {
       if (!event.isTrusted) {

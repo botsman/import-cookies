@@ -312,19 +312,74 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
         if (buttonIcon.getAttribute('href') === '../sprites/solid.svg#check') {
           return;
         }
-        if (loadedCookies && Object.keys(loadedCookies).length) {
-          for (const cookieId in loadedCookies) {
-            if (Object.prototype.hasOwnProperty.call(loadedCookies, cookieId)) {
-              removeCookie(loadedCookies[cookieId].cookie.name);
-            }
-          }
+        if (!loadedCookies || !Object.keys(loadedCookies).length) {
+          return;
         }
-        sendNotification('All cookies were deleted');
-        buttonIcon.setAttribute('href', '../sprites/solid.svg#check');
-        setTimeout(() => {
-          buttonIcon.setAttribute('href', '../sprites/solid.svg#trash');
-        }, 1500);
+        if (optionHandler.getDeleteAllConfirm()) {
+          showDeleteAllConfirmDialog(() => {
+            executeDeleteAll(buttonIcon);
+          });
+        } else {
+          executeDeleteAll(buttonIcon);
+        }
       });
+
+    /**
+     * Deletes all cookies for the current tab and updates the button icon.
+     * @param {Element} buttonIcon The SVGUseElement inside the delete-all button.
+     */
+    function executeDeleteAll(buttonIcon) {
+      for (const cookieId in loadedCookies) {
+        if (Object.prototype.hasOwnProperty.call(loadedCookies, cookieId)) {
+          removeCookie(loadedCookies[cookieId].cookie.name);
+        }
+      }
+      sendNotification('All cookies were deleted');
+      buttonIcon.setAttribute('href', '../sprites/solid.svg#check');
+      setTimeout(() => {
+        buttonIcon.setAttribute('href', '../sprites/solid.svg#trash');
+      }, 1500);
+    }
+
+    /**
+     * Shows a confirmation dialog before deleting all cookies.
+     * Calls onConfirm if the user confirms. If the user checks "Don't ask
+     * again", the deleteAllConfirm option is set to false.
+     * @param {function} onConfirm Callback invoked when the user confirms.
+     */
+    function showDeleteAllConfirmDialog(onConfirm) {
+      const template = document.importNode(
+        document.getElementById('tmp-confirm-delete-all').content,
+        true
+      );
+      const overlay = template.getElementById('confirm-delete-all-overlay');
+      document.body.appendChild(overlay);
+
+      document
+        .getElementById('confirm-delete-all-cancel')
+        .addEventListener('click', () => {
+          document.body.removeChild(
+            document.getElementById('confirm-delete-all-overlay')
+          );
+        });
+
+      document
+        .getElementById('confirm-delete-all-confirm')
+        .addEventListener('click', () => {
+          const dontAskAgain = document.getElementById(
+            'confirm-delete-all-dont-ask'
+          ).checked;
+          if (dontAskAgain) {
+            optionHandler.setDeleteAllConfirm(false);
+          }
+          document.body.removeChild(
+            document.getElementById('confirm-delete-all-overlay')
+          );
+          onConfirm();
+        });
+
+      document.getElementById('confirm-delete-all-cancel').focus();
+    }
 
     document.getElementById('export-cookies').addEventListener('click', () => {
       if (disableButtons) {
@@ -519,6 +574,16 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
         }
       });
 
+    document
+      .querySelector('#sidebar-cookies')
+      .addEventListener('click', () => switchPanel('cookies'));
+
+    document
+      .querySelector('#sidebar-settings')
+      .addEventListener('click', () => switchPanel('settings'));
+
+    initSettingsPanel();
+
     notificationElement.addEventListener('animationend', e => {
       if (notificationElement.classList.contains('fadeInUp')) {
         return;
@@ -546,6 +611,174 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
   });
 
   // == End document ready == //
+
+  /**
+   * Switches the main panel between 'cookies' and 'settings'.
+   * @param {string} panel 'cookies' or 'settings'
+   */
+  function switchPanel(panel) {
+    const mainArea = document.getElementById('main-area');
+    const cookiesBtn = document.getElementById('sidebar-cookies');
+    const settingsBtn = document.getElementById('sidebar-settings');
+
+    if (panel === 'settings') {
+      mainArea.classList.add('show-settings');
+      cookiesBtn.classList.remove('active');
+      settingsBtn.classList.add('active');
+      updateSettingsPanelValues();
+    } else {
+      mainArea.classList.remove('show-settings');
+      cookiesBtn.classList.add('active');
+      settingsBtn.classList.remove('active');
+    }
+  }
+
+  /**
+   * Wires up the settings panel form — called once on DOMContentLoaded.
+   */
+  function initSettingsPanel() {
+    const advancedCookieInput = document.getElementById('sp-advanced-cookie');
+    const devtoolShowInput = document.getElementById('sp-devtool-show');
+    const animationsEnabledInput = document.getElementById(
+      'sp-animations-enabled'
+    );
+    const exportFormatInput = document.getElementById('sp-export-format');
+    const extraInfoInput = document.getElementById('sp-extra-info');
+    const themeInput = document.getElementById('sp-theme');
+    const deleteAllConfirmInput = document.getElementById(
+      'sp-delete-all-confirm'
+    );
+    const buttonBarTopInput = document.getElementById('sp-button-bar-top');
+
+    advancedCookieInput.addEventListener('change', e => {
+      if (!e.isTrusted) return;
+      optionHandler.setCookieAdvanced(advancedCookieInput.checked);
+    });
+    devtoolShowInput.addEventListener('change', e => {
+      if (!e.isTrusted) return;
+      optionHandler.setDevtoolsEnabled(devtoolShowInput.checked);
+    });
+    animationsEnabledInput.addEventListener('change', e => {
+      if (!e.isTrusted) return;
+      optionHandler.setAnimationsEnabled(animationsEnabledInput.checked);
+    });
+    exportFormatInput.addEventListener('change', e => {
+      if (!e.isTrusted) return;
+      optionHandler.setExportFormat(exportFormatInput.value);
+    });
+    extraInfoInput.addEventListener('change', e => {
+      if (!e.isTrusted) return;
+      optionHandler.setExtraInfo(extraInfoInput.value);
+    });
+    themeInput.addEventListener('change', e => {
+      if (!e.isTrusted) return;
+      optionHandler.setTheme(themeInput.value);
+      themeHandler.updateTheme();
+    });
+    deleteAllConfirmInput.addEventListener('change', e => {
+      if (!e.isTrusted) return;
+      optionHandler.setDeleteAllConfirm(deleteAllConfirmInput.checked);
+    });
+    buttonBarTopInput.addEventListener('change', e => {
+      if (!e.isTrusted) return;
+      optionHandler.setButtonBarTop(buttonBarTopInput.checked);
+      moveButtonBar();
+    });
+
+    document
+      .getElementById('sp-export-all-json')
+      .addEventListener('click', async () => {
+        await spExportAllCookies('json');
+      });
+
+    document
+      .getElementById('sp-export-all-netscape')
+      .addEventListener('click', async () => {
+        await spExportAllCookies('netscape');
+      });
+
+    document
+      .getElementById('sp-delete-all')
+      .addEventListener('click', async () => {
+        const confirmed = confirm(
+          'Are you sure you want to delete ALL your cookies?'
+        );
+        if (!confirmed) return;
+        const cookies = await spGetAllCookies();
+        for (const cookieId in cookies) {
+          if (!Object.prototype.hasOwnProperty.call(cookies, cookieId)) {
+            continue;
+          }
+          const exportedCookie = cookies[cookieId].cookie;
+          const url = 'https://' + exportedCookie.domain + exportedCookie.path;
+          cookieHandler.removeCookie(exportedCookie.name, url);
+        }
+        alert('All your cookies were deleted.');
+      });
+  }
+
+  /**
+   * Syncs the settings panel form values from the current options.
+   */
+  function updateSettingsPanelValues() {
+    document.getElementById('sp-advanced-cookie').checked =
+      optionHandler.getCookieAdvanced();
+    document.getElementById('sp-devtool-show').checked =
+      optionHandler.getDevtoolsEnabled();
+    document.getElementById('sp-animations-enabled').checked =
+      optionHandler.getAnimationsEnabled();
+    document.getElementById('sp-export-format').value =
+      optionHandler.getExportFormat();
+    document.getElementById('sp-extra-info').value =
+      optionHandler.getExtraInfo();
+    document.getElementById('sp-theme').value = optionHandler.getTheme();
+    document.getElementById('sp-delete-all-confirm').checked =
+      optionHandler.getDeleteAllConfirm();
+    document.getElementById('sp-button-bar-top').checked =
+      optionHandler.getButtonBarTop();
+  }
+
+  /**
+   * Gets all cookies in the browser (used by the settings panel).
+   * @return {Promise<Object>}
+   */
+  async function spGetAllCookies() {
+    const hasPermissions =
+      await permissionHandler.checkPermissions('<all_urls>');
+    if (!hasPermissions) {
+      await permissionHandler.requestPermission('<all_urls>');
+    }
+    return new Promise(resolve => {
+      cookieHandler.getAllCookiesInBrowser(function (rawCookies) {
+        const result = [];
+        for (const cookie of rawCookies) {
+          const id = Cookie.hashCode(cookie);
+          result[id] = new Cookie(id, cookie, optionHandler);
+        }
+        resolve(result);
+      });
+    });
+  }
+
+  /**
+   * Exports all browser cookies to clipboard.
+   * @param {string} format 'json' or 'netscape'
+   */
+  async function spExportAllCookies(format) {
+    const cookies = await spGetAllCookies();
+    const text =
+      format === 'netscape'
+        ? NetscapeFormat.format(cookies)
+        : JsonFormat.format(cookies);
+    const fakeText = document.createElement('textarea');
+    fakeText.textContent = text;
+    document.body.appendChild(fakeText);
+    fakeText.focus();
+    fakeText.select();
+    document.execCommand('Copy');
+    document.body.removeChild(fakeText);
+    alert('Done!');
+  }
 
   /**
    * Builds the HTML for the cookies of the current tab.
