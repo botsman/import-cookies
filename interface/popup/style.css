@@ -73,6 +73,10 @@ svg.icon {
   gap: 4px;
 }
 
+.sidebar-btn-bottom {
+  margin-top: auto;
+}
+
 .sidebar-btn {
   display: flex;
   align-items: center;
@@ -122,11 +126,13 @@ svg.icon {
   display: block;
 }
 
-#main-area.show-settings #cookie-container {
+#main-area.show-settings #cookie-container,
+#main-area.show-account #cookie-container {
   display: none;
 }
 
-#main-area.show-settings .button-bar {
+#main-area.show-settings .button-bar,
+#main-area.show-account .button-bar {
   display: none !important;
 }
 
@@ -1172,4 +1178,124 @@ body,
 .full-stars .star-link:hover svg,
 .full-stars .star-link:has(~ .star-link:hover) svg {
   fill: #ffc711;
+}
+
+/* Account panel */
+#account-panel {
+  display: none;
+  padding: 14px 12px;
+  background-color: var(--secondary-surface-color);
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+#main-area.show-account #account-panel {
+  display: block;
+}
+
+#main-area.show-account #cookie-container,
+#main-area.show-account .button-bar {
+  display: none !important;
+}
+
+#account-logged-out p {
+  margin: 0 0 12px;
+  color: var(--secondary-text-color);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+#account-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 12px;
+  background-color: var(--primary-surface-color);
+  color: var(--primary-text-color);
+  border: 1px solid var(--primary-border-color);
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 100ms;
+}
+
+#account-login-btn:hover {
+  background-color: var(--menu-surface-hover-color);
+}
+
+#account-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+#account-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: var(--primary-border-color);
+}
+
+#account-name {
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 3px;
+  color: var(--primary-text-color);
+}
+
+#account-tier-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  background-color: var(--primary-border-color);
+  color: var(--secondary-text-color);
+}
+
+#account-tier-badge.premium {
+  background-color: #667eea;
+  color: #fff;
+}
+
+#account-logout-btn {
+  width: 100%;
+  padding: 6px 10px;
+  background-color: var(--primary-surface-color);
+  color: var(--secondary-text-color);
+  border: 1px solid var(--primary-border-color);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 100ms;
+}
+
+#account-logout-btn:hover {
+  background-color: var(--menu-surface-hover-color);
+  color: var(--primary-text-color);
+}
+
+#account-loading {
+  display: none;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.account-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--primary-text-color);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

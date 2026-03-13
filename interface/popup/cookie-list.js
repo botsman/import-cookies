@@ -1,4 +1,5 @@
 import { CookieHandlerDevtools } from '../devtools/cookieHandlerDevtools.js';
+import { AccountHandler } from '../lib/accountHandler.js';
 import { Animate } from '../lib/animate.js';
 import { BrowserDetector } from '../lib/browserDetector.js';
 import { Cookie } from '../lib/cookie.js';
@@ -30,6 +31,7 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
   const storageHandler = new GenericStorageHandler(browserDetector);
   const optionHandler = new OptionsHandler(browserDetector, storageHandler);
   const themeHandler = new ThemeHandler(optionHandler);
+  const accountHandler = new AccountHandler(browserDetector);
   const cookieHandler = window.isDevtools
     ? new CookieHandlerDevtools(browserDetector)
     : new CookieHandlerPopup(browserDetector);
@@ -576,13 +578,19 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
 
     document
       .querySelector('#sidebar-cookies')
-      .addEventListener('click', () => switchPanel('cookies'));
+      ?.addEventListener('click', () => switchPanel('cookies'));
 
     document
       .querySelector('#sidebar-settings')
-      .addEventListener('click', () => switchPanel('settings'));
+      ?.addEventListener('click', () => switchPanel('settings'));
+
+    document
+      .querySelector('#sidebar-account')
+      ?.addEventListener('click', () => switchPanel('account'));
 
     initSettingsPanel();
+    initAccountPanel();
+    accountHandler.getAccount();
 
     notificationElement.addEventListener('animationend', e => {
       if (notificationElement.classList.contains('fadeInUp')) {
@@ -618,19 +626,84 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
    */
   function switchPanel(panel) {
     const mainArea = document.getElementById('main-area');
+    if (!mainArea) return;
     const cookiesBtn = document.getElementById('sidebar-cookies');
     const settingsBtn = document.getElementById('sidebar-settings');
+    const accountBtn = document.getElementById('sidebar-account');
+
+    mainArea.classList.remove('show-settings', 'show-account');
+    cookiesBtn?.classList.remove('active');
+    settingsBtn?.classList.remove('active');
+    accountBtn?.classList.remove('active');
 
     if (panel === 'settings') {
       mainArea.classList.add('show-settings');
-      cookiesBtn.classList.remove('active');
-      settingsBtn.classList.add('active');
+      settingsBtn?.classList.add('active');
       updateSettingsPanelValues();
+    } else if (panel === 'account') {
+      mainArea.classList.add('show-account');
+      accountBtn?.classList.add('active');
+      renderAccountPanel();
     } else {
-      mainArea.classList.remove('show-settings');
-      cookiesBtn.classList.add('active');
-      settingsBtn.classList.remove('active');
+      cookiesBtn?.classList.add('active');
     }
+  }
+
+  /**
+   * Renders the account panel based on current auth state.
+   */
+  async function renderAccountPanel() {
+    const loading = document.getElementById('account-loading');
+    const loggedOut = document.getElementById('account-logged-out');
+    const loggedIn = document.getElementById('account-logged-in');
+
+    loading.style.display = 'block';
+    loggedOut.style.display = 'none';
+    loggedIn.style.display = 'none';
+
+    const user = await accountHandler.getAccount();
+
+    loading.style.display = 'none';
+    if (user) {
+      loggedOut.style.display = 'none';
+      loggedIn.style.display = 'block';
+      document.getElementById('account-name').textContent =
+        user.name || user.email;
+      document.getElementById('account-avatar').src = user.avatar || '';
+      const badge = document.getElementById('account-tier-badge');
+      if (user.account_type === 2) {
+        badge.textContent = 'Premium';
+        badge.className = 'premium';
+      } else {
+        badge.textContent = 'Free';
+        badge.className = '';
+      }
+    } else {
+      loggedOut.style.display = 'block';
+      loggedIn.style.display = 'none';
+    }
+  }
+
+  /**
+   * Wires up the account panel buttons — called once on DOMContentLoaded.
+   */
+  function initAccountPanel() {
+    document
+      .getElementById('account-login-btn')
+      ?.addEventListener('click', () => {
+        window.open('https://devtulz.com/import-cookies/login', '_blank');
+      });
+
+    document
+      .getElementById('account-logout-btn')
+      ?.addEventListener('click', async () => {
+        window.open(
+          'https://devtulz.com/import-cookies/api/auth/logout',
+          '_blank'
+        );
+        await accountHandler.clearAccount();
+        renderAccountPanel();
+      });
   }
 
   /**

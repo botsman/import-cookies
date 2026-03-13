@@ -14,6 +14,7 @@ export default [
       'node_modules/**',
       '.vscode/extensions.js',
       'safari/**',
+      'sample/**',
     ],
   },
 

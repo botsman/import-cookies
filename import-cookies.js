@@ -45,6 +45,9 @@ import { PermissionHandler } from './interface/lib/permissionHandler.js';
   // Setting up event listeners
   browserDetector.getApi().runtime.onConnect.addListener(onConnect);
   browserDetector.getApi().runtime.onMessage.addListener(handleMessage);
+  browserDetector
+    .getApi()
+    .runtime.onMessageExternal.addListener(handleExternalMessage);
   browserDetector.getApi().tabs.onUpdated.addListener(onTabsChanged);
   browserDetector.getApi().runtime.onInstalled.addListener(onInstalled);
   const uninstallUrl = 'https://devtulz.com/import-cookies/uninstall/';
@@ -239,14 +242,43 @@ import { PermissionHandler } from './interface/lib/permissionHandler.js';
   }
 
   /**
+   * Handles messages from external websites (e.g. devtulz.com checking if the
+   * extension is installed).
+   * @param {object} request
+   * @param {MessageSender} _sender
+   * @param {function} sendResponse
+   */
+  function handleExternalMessage(request, _sender, sendResponse) {
+    if (request.type === 'check_install') {
+      sendResponse({ installed: true });
+    }
+  }
+
+  /**
    * Handles the event that is fired when a tab is updated.
+   * Intercepts devtulz.com share links and redirects them to the internal
+   * import page.
    * @param {number} tabId The id of the tab that changed.
    * @param {object} changeInfo Properties of the tab that changed.
-   * @param {object} _tab The new state of the tab.
+   * @param {object} tab The new state of the tab.
    */
-  function onTabsChanged(tabId, changeInfo, _tab) {
-    console.log('tabs changed', tabId, changeInfo, _tab);
+  function onTabsChanged(tabId, changeInfo, tab) {
+    console.log('tabs changed', tabId, changeInfo, tab);
     sendMessageToTab(tabId, 'tabsChanged', changeInfo);
+
+    if (changeInfo.status === 'loading' && tab.url) {
+      const sharePattern =
+        /^https:\/\/devtulz\.com\/import-cookies\/cookie\/link\/([^/?#]+)/;
+      const match = tab.url.match(sharePattern);
+      if (match) {
+        const uuid = match[1];
+        const importUrl =
+          chrome.runtime.getURL('interface/import/import.html') +
+          '?cookie_id=' +
+          encodeURIComponent(uuid);
+        browserDetector.getApi().tabs.update(tabId, { url: importUrl });
+      }
+    }
   }
 
   /**

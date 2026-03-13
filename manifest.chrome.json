@@ -42,5 +42,10 @@
 		"48": "icons/cookie-48-filled.png",
 		"128": "icons/cookie-128-filled.png"
 	},
+	"externally_connectable": {
+		"matches": [
+			"https://devtulz.com/*"
+		]
+	},
 	"incognito": "split"
 }
