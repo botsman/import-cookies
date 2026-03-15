@@ -10,6 +10,7 @@
 </head>
 
 <body class="notransition">
+  <div id="left-col">
   <div id="pageTitle">
     <h1 class="container">
       Import Cookies
@@ -311,29 +312,6 @@
         </div>
       </div>
     </div>
-
-    <nav id="sidebar">
-      <button class="sidebar-btn active" id="sidebar-cookies" aria-label="Cookies" title="Cookies">
-        <svg class="icon">
-          <use href="../sprites/solid.svg#cookie"></use>
-        </svg>
-      </button>
-      <button class="sidebar-btn" id="sidebar-settings" aria-label="Settings" title="Settings">
-        <svg class="icon">
-          <use href="../sprites/solid.svg#cog"></use>
-        </svg>
-      </button>
-      <button class="sidebar-btn" id="sidebar-shares" aria-label="My Shares" title="My Shares">
-        <svg class="icon">
-          <use href="../sprites/solid.svg#share-alt"></use>
-        </svg>
-      </button>
-      <button class="sidebar-btn sidebar-btn-bottom" id="sidebar-account" aria-label="Account" title="Account">
-        <svg class="icon">
-          <use href="../sprites/solid.svg#user"></use>
-        </svg>
-      </button>
-    </nav>
   </div>
 
   <div id="notification-container">
@@ -394,6 +372,30 @@
       </a>
     </div>
   </div>
+  </div>
+
+  <nav id="sidebar">
+    <button class="sidebar-btn active" id="sidebar-cookies" aria-label="Cookies" title="Cookies">
+      <svg class="icon">
+        <use href="../sprites/solid.svg#cookie"></use>
+      </svg>
+    </button>
+    <button class="sidebar-btn" id="sidebar-settings" aria-label="Settings" title="Settings">
+      <svg class="icon">
+        <use href="../sprites/solid.svg#cog"></use>
+      </svg>
+    </button>
+    <button class="sidebar-btn" id="sidebar-shares" aria-label="My Shares" title="My Shares">
+      <svg class="icon">
+        <use href="../sprites/solid.svg#share-alt"></use>
+      </svg>
+    </button>
+    <button class="sidebar-btn" id="sidebar-account" aria-label="Account" title="Account">
+      <svg class="icon">
+        <use href="../sprites/solid.svg#user"></use>
+      </svg>
+    </button>
+  </nav>
 
   <script src="../lib/isPopup.js"></script>
   <script type="module" src="cookie-list.js"></script>
