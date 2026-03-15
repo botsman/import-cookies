@@ -173,6 +173,22 @@
         </div>
       </div>
 
+      <div id="shares-panel">
+        <div id="shares-logged-out" style="display:none">
+          <p>Sign in to view and manage your shared cookie links.</p>
+        </div>
+        <div id="shares-logged-in" style="display:none">
+          <div id="my-shares-header">
+            <span>My Shares</span>
+            <div id="my-shares-spinner" style="display:none"></div>
+          </div>
+          <ul id="my-shares-list"></ul>
+        </div>
+        <div id="shares-loading">
+          <div class="account-spinner"></div>
+        </div>
+      </div>
+
       <div class="panel button-bar active" id="button-bar-default">
         <div class="panel-section panel-section-footer">
           <button class="panel-section-footer-button" id="create-cookie" type="button">
@@ -213,6 +229,16 @@
               <div class="tooltip" role="tooltip">Export</div>
             </div>
           </button>
+          <div class="panel-section-footer-separator"></div>
+
+          <button class="panel-section-footer-button" id="share-cookies" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#share-alt"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Share</div>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -234,6 +260,29 @@
                 <use href="../sprites/solid.svg#save"></use>
               </svg>
               <div class="tooltip" role="tooltip">Add</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel button-bar" id="button-bar-share">
+        <div class="panel-section panel-section-footer">
+          <button class="panel-section-footer-button" id="return-list-share" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#arrow-left"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Cancel</div>
+            </div>
+          </button>
+          <div class="panel-section-footer-separator"></div>
+
+          <button class="panel-section-footer-button primary" id="save-share-cookie" type="button">
+            <div>
+              <svg class="icon">
+                <use href="../sprites/solid.svg#share-alt"></use>
+              </svg>
+              <div class="tooltip" role="tooltip">Share</div>
             </div>
           </button>
         </div>
@@ -272,6 +321,11 @@
       <button class="sidebar-btn" id="sidebar-settings" aria-label="Settings" title="Settings">
         <svg class="icon">
           <use href="../sprites/solid.svg#cog"></use>
+        </svg>
+      </button>
+      <button class="sidebar-btn" id="sidebar-shares" aria-label="My Shares" title="My Shares">
+        <svg class="icon">
+          <use href="../sprites/solid.svg#share-alt"></use>
         </svg>
       </button>
       <button class="sidebar-btn sidebar-btn-bottom" id="sidebar-account" aria-label="Account" title="Account">
@@ -531,6 +585,70 @@
         </div>
       </div>
     </div>
+  </template>
+
+  <template id="tmp-share">
+    <form class="form container share-form">
+      <div>
+        <label for="share-title">Title</label>
+        <input name="title" type="text" id="share-title" placeholder="My cookies" />
+      </div>
+      <div>
+        <label for="share-exp">Expires in</label>
+        <select name="exp" id="share-exp">
+          <option value="1h">1 hour</option>
+          <option value="3d">3 days</option>
+          <option value="7d">7 days</option>
+          <option value="30d">30 days</option>
+          <option value="unlimited">Never</option>
+        </select>
+      </div>
+      <div class="share-public-row">
+        <label for="share-public">Public link</label>
+        <label class="switch">
+          <input type="checkbox" id="share-public" checked />
+          <span class="slider"></span>
+        </label>
+        <div class="hint">Anyone with the link can import these cookies.</div>
+      </div>
+      <div>
+        <label for="share-password">Password (optional)</label>
+        <input name="password" type="password" id="share-password" placeholder="Leave blank for no password" autocomplete="new-password" />
+        <div class="hint">Recipients must enter this password to import.</div>
+      </div>
+      <div class="share-privacy-note">
+        <svg class="icon" style="flex-shrink:0"><use href="../sprites/solid.svg#lock"></use></svg>
+        Cookies are encrypted in your browser before upload. The server never has access to their contents.
+      </div>
+    </form>
+  </template>
+
+  <template id="tmp-share-result">
+    <div class="container share-result">
+      <p class="share-result-label">Share link created!</p>
+      <div class="share-url-row">
+        <input class="share-url-input" type="text" readonly />
+        <button class="share-url-copy" type="button">Copy</button>
+      </div>
+      <p class="hint share-result-hint">The link includes the decryption key. Keep it safe.</p>
+    </div>
+  </template>
+
+  <template id="tmp-share-item">
+    <li class="share-item">
+      <div class="share-item-info">
+        <span class="share-item-title"></span>
+        <span class="share-item-meta"></span>
+      </div>
+      <div class="share-item-actions">
+        <button class="share-item-copy" type="button" title="Copy link">
+          <svg class="icon"><use href="../sprites/solid.svg#link"></use></svg>
+        </button>
+        <button class="share-item-delete" type="button" title="Delete">
+          <svg class="icon"><use href="../sprites/solid.svg#trash"></use></svg>
+        </button>
+      </div>
+    </li>
   </template>
 
   <template id="tmp-ad-item">

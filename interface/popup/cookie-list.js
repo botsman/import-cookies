@@ -3,6 +3,18 @@ import { AccountHandler } from '../lib/accountHandler.js';
 import { Animate } from '../lib/animate.js';
 import { BrowserDetector } from '../lib/browserDetector.js';
 import { Cookie } from '../lib/cookie.js';
+import {
+  buildShareUrl,
+  decryptCookies,
+  decryptCookiesWithPassword,
+  deleteSharedCookie,
+  encryptCookies,
+  encryptCookiesWithPassword,
+  fetchSharedInfo,
+  listSharedCookies,
+  parseShareUrl,
+  shareCookies,
+} from '../lib/cookieShare.js';
 import { GenericStorageHandler } from '../lib/genericStorageHandler.js';
 import { HeaderstringFormat } from '../lib/headerstringFormat.js';
 import { JsonFormat } from '../lib/jsonFormat.js';
@@ -417,11 +429,46 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
       return false;
     });
 
+    document.getElementById('share-cookies').addEventListener('click', () => {
+      if (disableButtons) {
+        return;
+      }
+      if (!loadedCookies || !Object.keys(loadedCookies).length) {
+        sendNotification('No cookies to share on this page.');
+        return;
+      }
+
+      setPageTitle('Import Cookies - Share');
+
+      disableButtons = true;
+      Animate.transitionPage(
+        containerCookie,
+        containerCookie.firstChild,
+        createHtmlFormShare(),
+        'left',
+        () => {
+          disableButtons = false;
+        },
+        optionHandler.getAnimationsEnabled()
+      );
+
+      document.getElementById('button-bar-default').classList.remove('active');
+      document.getElementById('button-bar-share').classList.add('active');
+
+      document.getElementById('share-title').focus();
+      return false;
+    });
+
     document.getElementById('return-list-add').addEventListener('click', () => {
       showCookiesForTab();
     });
     document
       .getElementById('return-list-import')
+      .addEventListener('click', () => {
+        showCookiesForTab();
+      });
+    document
+      .getElementById('return-list-share')
       .addEventListener('click', () => {
         showCookiesForTab();
       });
@@ -440,7 +487,7 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
 
     document
       .getElementById('save-import-cookie')
-      .addEventListener('click', e => {
+      .addEventListener('click', async e => {
         const buttonIcon = document
           .getElementById('save-import-cookie')
           .querySelector('use');
@@ -450,21 +497,78 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
           return;
         }
 
-        const json = document.querySelector('textarea').value;
-        if (!json) {
+        const text = document.querySelector('textarea').value;
+        if (!text) {
           return;
         }
+
+        // Check if the input is a share URL
+        const parsed = parseShareUrl(text);
+        if (parsed) {
+          if (parsed.passwordProtected) {
+            const password = prompt(
+              'This link is password protected. Enter the password:'
+            );
+            if (!password) return;
+            buttonIcon.setAttribute('href', '../sprites/solid.svg#spinner');
+            try {
+              const info = await fetchSharedInfo(parsed.uuid);
+              const cookies = await decryptCookiesWithPassword(
+                info.cookie,
+                password,
+                parsed.saltBase64
+              );
+              importCookiesArray(cookies);
+              sendNotification('Cookies were imported from share link.');
+              showCookiesForTab();
+            } catch (err) {
+              sendNotification('Wrong password or corrupted link.');
+              buttonIcon.setAttribute('href', '../sprites/solid.svg#times');
+              setTimeout(() => {
+                buttonIcon.setAttribute(
+                  'href',
+                  '../sprites/solid.svg#file-import'
+                );
+              }, 1500);
+            }
+          } else {
+            buttonIcon.setAttribute('href', '../sprites/solid.svg#spinner');
+            try {
+              const info = await fetchSharedInfo(parsed.uuid);
+              const cookies = await decryptCookies(
+                info.cookie,
+                parsed.keyBase64
+              );
+              importCookiesArray(cookies);
+              sendNotification('Cookies were imported from share link.');
+              showCookiesForTab();
+            } catch (err) {
+              sendNotification(
+                err.message || 'Failed to import from share link.'
+              );
+              buttonIcon.setAttribute('href', '../sprites/solid.svg#times');
+              setTimeout(() => {
+                buttonIcon.setAttribute(
+                  'href',
+                  '../sprites/solid.svg#file-import'
+                );
+              }, 1500);
+            }
+          }
+          return;
+        }
+
         let cookies;
         try {
-          cookies = JsonFormat.parse(json);
+          cookies = JsonFormat.parse(text);
         } catch (error) {
           console.warn(error);
           try {
-            cookies = HeaderstringFormat.parse(json);
+            cookies = HeaderstringFormat.parse(text);
           } catch (error) {
             console.warn(error);
             try {
-              cookies = NetscapeFormat.parse(json);
+              cookies = NetscapeFormat.parse(text);
             } catch (error) {
               console.warn("Couldn't parse Data", error);
               sendNotification('The input is not in a valid format.');
@@ -490,34 +594,76 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
           return;
         }
 
-        for (const cookie of cookies) {
-          // Make sure we are using the right store ID. This is in case we are
-          // importing from a basic store ID and the current user is using
-          // custom containers
-          cookie.storeId = cookieHandler.currentTab.cookieStoreId;
-
-          if (cookie.sameSite && cookie.sameSite === 'unspecified') {
-            cookie.sameSite = null;
-          }
-
-          try {
-            cookieHandler.saveCookie(
-              cookie,
-              getCurrentTabUrl(),
-              function (error, cookie) {
-                if (error) {
-                  sendNotification(error);
-                }
-              }
-            );
-          } catch (error) {
-            console.error(error);
-            sendNotification(error);
-          }
-        }
-
+        importCookiesArray(cookies);
         sendNotification(`Cookies were imported`);
         showCookiesForTab();
+      });
+
+    document
+      .getElementById('save-share-cookie')
+      .addEventListener('click', async () => {
+        const btn = document.getElementById('save-share-cookie');
+        const btnIcon = btn.querySelector('use');
+        if (btnIcon.getAttribute('href') !== '../sprites/solid.svg#share-alt') {
+          return;
+        }
+
+        const user = await accountHandler.getAccount();
+        if (!user) {
+          sendNotification('Sign in to share cookies.');
+          return;
+        }
+
+        const titleInput = document.getElementById('share-title');
+        const expSelect = document.getElementById('share-exp');
+        const publicCheck = document.getElementById('share-public');
+        const passwordInput = document.getElementById('share-password');
+
+        const domain = getDomainFromUrl(getCurrentTabUrl()) || 'unknown';
+        const title = (titleInput?.value || '').trim() || domain;
+        const exp = expSelect?.value || '7d';
+        const isPublic = publicCheck?.checked ?? true;
+        const password = passwordInput?.value || '';
+
+        const cookiesArray = Object.values(loadedCookies).map(c => c.cookie);
+
+        btnIcon.setAttribute('href', '../sprites/solid.svg#spinner');
+        btn.disabled = true;
+
+        try {
+          let encryptedData;
+          let fragment;
+          if (password) {
+            const result = await encryptCookiesWithPassword(
+              cookiesArray,
+              password
+            );
+            encryptedData = result.encryptedData;
+            fragment = `pw:${result.saltBase64}`;
+          } else {
+            const result = await encryptCookies(cookiesArray);
+            encryptedData = result.encryptedData;
+            fragment = result.keyBase64;
+          }
+
+          const uuid = await shareCookies({
+            encryptedData,
+            title,
+            domain,
+            exp,
+            isPublic,
+          });
+
+          // Persist fragment locally so My Shares can rebuild the full URL
+          await storeShareKey(uuid, fragment);
+
+          const shareUrl = buildShareUrl(uuid, fragment);
+          showShareResult(shareUrl, Boolean(password));
+        } catch (err) {
+          sendNotification(err.message || 'Failed to share cookies.');
+          btnIcon.setAttribute('href', '../sprites/solid.svg#share-alt');
+          btn.disabled = false;
+        }
       });
 
     const mainMenuContent = document.querySelector('#main-menu-content');
@@ -585,6 +731,10 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
       ?.addEventListener('click', () => switchPanel('settings'));
 
     document
+      .querySelector('#sidebar-shares')
+      ?.addEventListener('click', () => switchPanel('shares'));
+
+    document
       .querySelector('#sidebar-account')
       ?.addEventListener('click', () => switchPanel('account'));
 
@@ -629,12 +779,19 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
     if (!mainArea) return;
     const cookiesBtn = document.getElementById('sidebar-cookies');
     const settingsBtn = document.getElementById('sidebar-settings');
+    const sharesBtn = document.getElementById('sidebar-shares');
     const accountBtn = document.getElementById('sidebar-account');
 
-    mainArea.classList.remove('show-settings', 'show-account');
+    mainArea.classList.remove('show-settings', 'show-account', 'show-shares');
     cookiesBtn?.classList.remove('active');
     settingsBtn?.classList.remove('active');
+    sharesBtn?.classList.remove('active');
     accountBtn?.classList.remove('active');
+
+    const onCookiesPanel = panel === 'cookies' || !panel;
+    document.querySelectorAll('.button-bar').forEach(bar => {
+      bar.style.display = onCookiesPanel ? '' : 'none';
+    });
 
     if (panel === 'settings') {
       mainArea.classList.add('show-settings');
@@ -644,6 +801,10 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
       mainArea.classList.add('show-account');
       accountBtn?.classList.add('active');
       renderAccountPanel();
+    } else if (panel === 'shares') {
+      mainArea.classList.add('show-shares');
+      sharesBtn?.classList.add('active');
+      renderSharesPanel();
     } else {
       cookiesBtn?.classList.add('active');
     }
@@ -1590,6 +1751,219 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
 
     if (oldOptions.extraInfo != optionHandler.getExtraInfo()) {
       showCookiesForTab();
+    }
+  }
+
+  /**
+   * Imports an array of cookie objects into the current tab.
+   * @param {Array} cookies
+   */
+  function importCookiesArray(cookies) {
+    for (const cookie of cookies) {
+      cookie.storeId = cookieHandler.currentTab.cookieStoreId;
+      if (cookie.sameSite && cookie.sameSite === 'unspecified') {
+        cookie.sameSite = null;
+      }
+      try {
+        cookieHandler.saveCookie(cookie, getCurrentTabUrl(), function (error) {
+          if (error) {
+            sendNotification(error);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        sendNotification(error);
+      }
+    }
+  }
+
+  /**
+   * Creates the HTML form for sharing cookies.
+   * @return {Element}
+   */
+  function createHtmlFormShare() {
+    const template = document.importNode(
+      document.getElementById('tmp-share').content,
+      true
+    );
+    const form = template.querySelector('form');
+    const domain = getDomainFromUrl(getCurrentTabUrl()) || '';
+    const titleInput = form.querySelector('#share-title');
+    if (titleInput && domain) {
+      titleInput.value = domain;
+    }
+    return form;
+  }
+
+  /**
+   * Replaces the share form in containerCookie with the share result view.
+   * @param {string} shareUrl
+   * @param {boolean} passwordProtected
+   */
+  function showShareResult(shareUrl, passwordProtected) {
+    const template = document.importNode(
+      document.getElementById('tmp-share-result').content,
+      true
+    );
+    const div = template.querySelector('div');
+    const urlInput = div.querySelector('.share-url-input');
+    const copyBtn = div.querySelector('.share-url-copy');
+    const hint = div.querySelector('.share-result-hint');
+
+    urlInput.value = shareUrl;
+    copyBtn.addEventListener('click', () => {
+      copyText(shareUrl);
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 1500);
+    });
+
+    if (hint) {
+      hint.textContent = passwordProtected
+        ? 'Password-protected. Share the link and password separately.'
+        : 'The link includes the decryption key. Keep it safe.';
+    }
+
+    // Replace current content
+    clearChildren(containerCookie);
+    containerCookie.appendChild(div);
+
+    // Restore button bar state — keep share bar visible but reset icon
+    const btn = document.getElementById('save-share-cookie');
+    const btnIcon = btn?.querySelector('use');
+    if (btnIcon) {
+      btnIcon.setAttribute('href', '../sprites/solid.svg#share-alt');
+    }
+    if (btn) btn.disabled = false;
+  }
+
+  /**
+   * Persists the AES key for a share UUID in local storage,
+   * so the user can reconstruct the full URL from My Shares.
+   * @param {string} uuid
+   * @param {string} keyBase64
+   */
+  async function storeShareKey(uuid, keyBase64) {
+    const keys = (await storageHandler.getLocal('share_keys')) || {};
+    keys[uuid] = keyBase64;
+    await storageHandler.setLocal('share_keys', keys);
+  }
+
+  /**
+   * Returns the stored key for a UUID, or null.
+   * @param {string} uuid
+   * @return {Promise<string|null>}
+   */
+  async function getShareKey(uuid) {
+    const keys = (await storageHandler.getLocal('share_keys')) || {};
+    return keys[uuid] || null;
+  }
+
+  /**
+   * Removes a stored share key.
+   * @param {string} uuid
+   */
+  async function removeShareKey(uuid) {
+    const keys = (await storageHandler.getLocal('share_keys')) || {};
+    delete keys[uuid];
+    await storageHandler.setLocal('share_keys', keys);
+  }
+
+  /**
+   * Renders the shares panel based on current auth state.
+   */
+  async function renderSharesPanel() {
+    const loading = document.getElementById('shares-loading');
+    const loggedOut = document.getElementById('shares-logged-out');
+    const loggedIn = document.getElementById('shares-logged-in');
+
+    if (loading) loading.style.display = 'block';
+    if (loggedOut) loggedOut.style.display = 'none';
+    if (loggedIn) loggedIn.style.display = 'none';
+
+    const user = await accountHandler.getAccount();
+
+    if (loading) loading.style.display = 'none';
+    if (user) {
+      if (loggedIn) loggedIn.style.display = 'block';
+      renderMyShares();
+    } else {
+      if (loggedOut) loggedOut.style.display = 'block';
+    }
+  }
+
+  /**
+   * Loads and renders the My Shares list inside the shares panel.
+   */
+  async function renderMyShares() {
+    const spinner = document.getElementById('my-shares-spinner');
+    const list = document.getElementById('my-shares-list');
+    if (!list) return;
+
+    clearChildren(list);
+    if (spinner) spinner.style.display = 'inline-block';
+
+    let shares;
+    try {
+      shares = await listSharedCookies();
+    } catch {
+      if (spinner) spinner.style.display = 'none';
+      return;
+    }
+    if (spinner) spinner.style.display = 'none';
+
+    if (!shares || !shares.length) {
+      const empty = document.createElement('li');
+      empty.className = 'share-item-empty';
+      empty.textContent = 'No shared links yet.';
+      list.appendChild(empty);
+      return;
+    }
+
+    for (const share of shares) {
+      const template = document.importNode(
+        document.getElementById('tmp-share-item').content,
+        true
+      );
+      const li = template.querySelector('li');
+      li.querySelector('.share-item-title').textContent =
+        share.title || share.domain;
+      li.querySelector('.share-item-meta').textContent =
+        share.domain +
+        (share.is_unlimited_exp ? ' · never expires' : ' · ' + share.exp);
+
+      const copyBtn = li.querySelector('.share-item-copy');
+      copyBtn.addEventListener('click', async () => {
+        const fragment = await getShareKey(share.uuid);
+        if (fragment) {
+          copyText(buildShareUrl(share.uuid, fragment));
+          const isPasswordProtected = fragment.startsWith('pw:');
+          sendNotification(
+            isPasswordProtected
+              ? 'Link copied. Share the password separately.'
+              : 'Share link copied.'
+          );
+        } else {
+          sendNotification('Key not found — share again to get the link.');
+        }
+      });
+
+      const deleteBtn = li.querySelector('.share-item-delete');
+      deleteBtn.addEventListener('click', async () => {
+        deleteBtn.disabled = true;
+        try {
+          await deleteSharedCookie(share.uuid);
+          await removeShareKey(share.uuid);
+          li.remove();
+          sendNotification('Share deleted.');
+        } catch (err) {
+          sendNotification(err.message || 'Failed to delete share.');
+          deleteBtn.disabled = false;
+        }
+      });
+
+      list.appendChild(li);
     }
   }
 
