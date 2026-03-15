@@ -1031,6 +1031,7 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
     setPageTitle('Import Cookies');
     document.getElementById('button-bar-add').classList.remove('active');
     document.getElementById('button-bar-import').classList.remove('active');
+    document.getElementById('button-bar-share').classList.remove('active');
     document.getElementById('button-bar-default').classList.add('active');
     document.myThing = 'DarkSide';
     const domain = getDomainFromUrl(cookieHandler.currentTab.url);
@@ -1145,6 +1146,7 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
 
     document.getElementById('button-bar-add').classList.remove('active');
     document.getElementById('button-bar-import').classList.remove('active');
+    document.getElementById('button-bar-share').classList.remove('active');
     document.getElementById('button-bar-default').classList.remove('active');
     // Firefox can't request permissions from devTools due to
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1796933
@@ -1221,6 +1223,7 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
 
     document.getElementById('button-bar-add').classList.remove('active');
     document.getElementById('button-bar-import').classList.remove('active');
+    document.getElementById('button-bar-share').classList.remove('active');
     document.getElementById('button-bar-default').classList.remove('active');
     if (containerCookie.firstChild) {
       if (containerCookie.firstChild.id === 'permission-impossible') {
