@@ -610,7 +610,13 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
 
         const user = await accountHandler.getAccount();
         if (!user) {
-          sendNotification('Sign in to share cookies.');
+          window.open('https://devtulz.com/import-cookies/login', '_blank');
+          return;
+        }
+
+        const premium = await accountHandler.isPremium();
+        if (!premium) {
+          showSubscribeModal();
           return;
         }
 
@@ -1796,6 +1802,52 @@ import { CookieHandlerPopup } from './cookieHandlerPopup.js';
       titleInput.value = domain;
     }
     return form;
+  }
+
+  /**
+   * Shows the subscription modal overlay.
+   */
+  function showSubscribeModal() {
+    const existing = document.getElementById('subscribe-overlay');
+    if (existing) return;
+
+    const overlay = document
+      .importNode(document.getElementById('tmp-subscribe-modal').content, true)
+      .querySelector('#subscribe-overlay');
+
+    document.body.appendChild(overlay);
+
+    document
+      .getElementById('subscribe-close')
+      .addEventListener('click', closeSubscribeModal);
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) closeSubscribeModal();
+    });
+    document
+      .getElementById('subscribe-monthly')
+      .addEventListener('click', () => {
+        window.open(
+          'https://devtulz.com/import-cookies/subscribe?plan=monthly',
+          '_blank'
+        );
+        closeSubscribeModal();
+      });
+    document
+      .getElementById('subscribe-yearly')
+      .addEventListener('click', () => {
+        window.open(
+          'https://devtulz.com/import-cookies/subscribe?plan=yearly',
+          '_blank'
+        );
+        closeSubscribeModal();
+      });
+  }
+
+  /**
+   * Removes the subscription modal overlay.
+   */
+  function closeSubscribeModal() {
+    document.getElementById('subscribe-overlay')?.remove();
   }
 
   /**

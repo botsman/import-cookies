@@ -1,9 +1,11 @@
 const API_BASE = 'https://devtulz.com/import-cookies/api';
 const STORAGE_KEY = 'account_cache';
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 /**
  * Manages the current user's account state.
  * Caches results in chrome.storage.session (cleared on browser close).
+ * Cache is considered fresh for 1 hour; after that a background re-fetch runs.
  * Broadcasts 'accountChanged' to all extension contexts on change.
  */
 export class AccountHandler {
@@ -16,7 +18,8 @@ export class AccountHandler {
   }
 
   /**
-   * Returns the cached account, or fetches from the API if not cached.
+   * Returns the cached account if fresh (< 1 h old), otherwise fetches from
+   * the API and updates the cache.
    * @return {Promise<object|null>}
    */
   async getAccount() {
@@ -66,17 +69,24 @@ export class AccountHandler {
   }
 
   /**
+   * Returns true only when the user has an active Premium subscription.
+   * Checks both account_type and that expiry_date (if set) has not passed.
    * @return {Promise<boolean>}
    */
   async isPremium() {
     const account = await this.getAccount();
-    return account?.account_type === 2;
+    if (!account || account.account_type !== 2) return false;
+    if (!account.expiry_date) return true;
+    return new Date(account.expiry_date) > new Date();
   }
 
   // --- private ---
 
   /**
-   * @return {Promise<*>}
+   * Returns the cached user if the entry exists and is less than CACHE_TTL_MS
+   * old. Returns undefined when the cache is missing or stale (caller should
+   * fetch fresh data).
+   * @return {Promise<object|null|undefined>}
    */
   async _readCache() {
     try {
@@ -84,7 +94,10 @@ export class AccountHandler {
       if (!api.storage.session) return undefined;
       const result = await api.storage.session.get(STORAGE_KEY);
       if (STORAGE_KEY in result) {
-        return result[STORAGE_KEY];
+        const { user, cachedAt } = result[STORAGE_KEY];
+        if (Date.now() - cachedAt < CACHE_TTL_MS) {
+          return user;
+        }
       }
     } catch (e) {
       // storage.session not available in all contexts
@@ -93,14 +106,16 @@ export class AccountHandler {
   }
 
   /**
-   * @param {*} value
+   * @param {object|null} user
    * @return {Promise<void>}
    */
-  async _writeCache(value) {
+  async _writeCache(user) {
     try {
       const api = this.browserDetector.getApi();
       if (!api.storage.session) return;
-      await api.storage.session.set({ [STORAGE_KEY]: value });
+      await api.storage.session.set({
+        [STORAGE_KEY]: { user, cachedAt: Date.now() },
+      });
     } catch (e) {
       // ignore
     }

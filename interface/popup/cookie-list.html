@@ -665,6 +665,33 @@
       </div>
     </div>
   </template>
+
+  <template id="tmp-subscribe-modal">
+    <div id="subscribe-overlay">
+      <div id="subscribe-dialog">
+        <button id="subscribe-close" type="button" aria-label="Close">
+          <svg class="icon"><use href="../sprites/solid.svg#times"></use></svg>
+        </button>
+        <div id="subscribe-icon">
+          <svg class="icon"><use href="../sprites/solid.svg#crown"></use></svg>
+        </div>
+        <h2 id="subscribe-title">Unlock Premium</h2>
+        <p id="subscribe-desc">Cookie sharing requires a Premium subscription.</p>
+        <div id="subscribe-plans">
+          <button class="subscribe-plan-btn" id="subscribe-monthly" type="button">
+            <span class="plan-label">Monthly</span>
+            <span class="plan-price">$5.90<span class="plan-period">/mo</span></span>
+          </button>
+          <button class="subscribe-plan-btn subscribe-plan-btn--highlight" id="subscribe-yearly" type="button">
+            <span class="plan-badge">Best value</span>
+            <span class="plan-label">Yearly</span>
+            <span class="plan-price">$59<span class="plan-period">/yr</span></span>
+            <span class="plan-saving">Save 17%</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </template>
 </body>
 
 </html>
